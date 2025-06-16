@@ -3,7 +3,7 @@ FROM balenalib/armv7hf-debian:latest
 
 # Install required packages
 RUN apt-get update && apt-get install -y \
-    ocl-icd-libopencl1 \
+    #ocl-icd-libopencl1 \
     alsa-utils \
     ffmpeg \
     curl \
