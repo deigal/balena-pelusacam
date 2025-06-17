@@ -19,7 +19,7 @@ mkdir -p "$OUTPUT_DIR"
 # if ! mount | grep -q "$SDCARD_MOUNT"; then
 #     echo "Mounting SD card..."
 #     mkdir -p "$SDCARD_MOUNT"
-#     mount /dev/mmcblk0p1 "$SDCARD_MOUNT"
+#     mount -t vfat /dev/mmcblk0p1 "$SDCARD_MOUNT"
 # fi
 
 # Check if mount was successful
@@ -62,7 +62,7 @@ fi
 
 echo "Starting video capture..."
 # Start video capture with ffmpeg, 1080 resolution kills the board, so we use 720p
-ffmpeg -f v4l2 -framerate 30 -video_size 720x1280 -input_format h264 -i "$VIDEO_DEVICE" -f alsa -i hw:0 -c:v copy -c:a aac -b:a 128k -t 60 "$OUTPUT_DIR/$FILENAME"
+ffmpeg -f v4l2 -framerate "$FRAMERATE" -video_size "$VIDEO_RESOLUTION" -input_format h264 -i "$VIDEO_DEVICE" -f alsa -i hw:0 -c:v copy -c:a aac -b:a 128k -t 60 "$OUTPUT_DIR/$FILENAME"
 
 echo "Process completed!"
 
