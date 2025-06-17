@@ -8,19 +8,18 @@ VIDEO_LENGTH=${VIDEO_LENGTH:-60}  # Recording length in seconds
 VIDEO_RESOLUTION=${VIDEO_RESOLUTION:-"1920x1080"}
 VIDEO_DEVICE=${VIDEO_DEVICE:-"/dev/video0"}
 FRAMERATE=${FRAMERATE:-30}
-OUTPUT_DIR="/app/videos"
-FILENAME="pelusacam_$(date +%Y%m%d_%H%M%S).mp4"
+OUTPUT_DIR=${OUTPUT_DIR:-"/app/videos"}
 
 # Ensure output directory exists
 mkdir -p "$OUTPUT_DIR"
 
 # Mount the SD card
-# SDCARD_MOUNT="/mnt/sdcard"
-# if ! mount | grep -q "$SDCARD_MOUNT"; then
-#     echo "Mounting SD card..."
-#     mkdir -p "$SDCARD_MOUNT"
-#     mount -t vfat /dev/mmcblk0p1 "$SDCARD_MOUNT"
-# fi
+SDCARD_MOUNT="/mnt/sdcard"
+if ! mount | grep -q "$SDCARD_MOUNT"; then
+    echo "Mounting SD card..."
+    mkdir -p "$SDCARD_MOUNT"
+    mount -t vfat /dev/mmcblk0p1 "$SDCARD_MOUNT"
+fi
 
 # Check if mount was successful
 # if ! mount | grep -q "$SDCARD_MOUNT"; then
@@ -61,8 +60,9 @@ if [ ! -e "$VIDEO_DEVICE" ]; then
 fi
 
 echo "Starting video capture..."
+FILENAME="pelusacam_$(date +%Y%m%d_%H%M%S).mp4"
 # Start video capture with ffmpeg, 1080 resolution kills the board, so we use 720p
-ffmpeg -f v4l2 -framerate "$FRAMERATE" -video_size "$VIDEO_RESOLUTION" -input_format h264 -i "$VIDEO_DEVICE" -f alsa -i hw:0 -c:v copy -c:a aac -b:a 128k -t 60 "$OUTPUT_DIR/$FILENAME"
+ffmpeg -f v4l2 -framerate "$FRAMERATE" -video_size "$VIDEO_RESOLUTION" -input_format h264 -i "$VIDEO_DEVICE" -f alsa -ar 32000 -thread_queue_size 1024 -i hw:0 -c:v copy -c:a aac -b:a 128k -t "$VIDEO_LENGTH" "$OUTPUT_DIR/$FILENAME"
 
 echo "Process completed!"
 
